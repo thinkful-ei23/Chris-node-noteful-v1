@@ -20,3 +20,9 @@ app.listen(8080, function () {
 app.get('/api/notes', (req, res) => {
   res.json(data);
 });
+
+app.get('/api/notes/:id', (req, res) => {
+  const id = req.params.id;
+  const item = data.find(item => item.id === Number(id));
+  res.json(item);
+});
