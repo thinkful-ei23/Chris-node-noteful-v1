@@ -18,7 +18,12 @@ app.listen(8080, function () {
 });
 
 app.get('/api/notes', (req, res) => {
-  res.json(data);
+  const query = req.query;
+  let searchList = data;
+  if (query.searchTerm) {
+    searchList = searchList.filter(item => item.title.includes(query.searchTerm));
+  }
+  res.json(searchList);
 });
 
 app.get('/api/notes/:id', (req, res) => {
