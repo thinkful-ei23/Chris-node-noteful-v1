@@ -30,10 +30,14 @@ app.get('/api/notes', (req, res, next) => {
   });
 });
 
-app.get('/api/notes/:id', (req, res) => {
-  const id = req.params.id;
-  const item = data.find(item => item.id === Number(id));
-  res.json(item);
+app.get('/api/notes/:id', (req, res, next) => {
+  const { id } = req.params;
+  notes.find(id, function(err, item) {
+    if (err) {
+      return next(err);
+    }
+    res.json(item);
+  });
 });
 // error handling
 app.get('/boom', (req, res, next) => {
