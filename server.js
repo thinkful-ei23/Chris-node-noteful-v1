@@ -3,6 +3,8 @@
 // Load array of notes
 const data = require('./db/notes');
 
+const simDB = require('./db/simDB');
+const notes = simDB.initialize(data);
 // load logger
 const myLogger = require('./middleware/logger.js');
 
@@ -33,6 +35,10 @@ app.get('/api/notes/:id', (req, res) => {
   res.json(item);
 });
 // error handling
+app.get('/boom', (req, res, next) => {
+  throw new Error('Boom!!');
+});
+
 app.use(function (req, res, next) {
   var err = new Error('Not Found');
   err.status = 404;
@@ -47,9 +53,6 @@ app.use(function (err, req, res, next) {
   });
 });
 
-app.get('/boom', (req, res, next) => {
-  throw new Error('Boom!!');
-});
 
 // Port to listen for 8080
 app.listen(8080, function () {
