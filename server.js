@@ -3,8 +3,11 @@
 // Load array of notes
 const data = require('./db/notes');
 
+// load logger
+const myLogger = require('./middleware/logger.js');
+
 // load config file
-const { PORT } = require('./config');
+// const { PORT } = require('./config');
 
 console.log('Hello Noteful!');
 
@@ -13,6 +16,7 @@ const express = require('express');
 const app = express();
 
 app.use(express.static('public'));
+app.use(myLogger);
 
 app.get('/api/notes', (req, res) => {
   const query = req.query;
@@ -28,8 +32,27 @@ app.get('/api/notes/:id', (req, res) => {
   const item = data.find(item => item.id === Number(id));
   res.json(item);
 });
+// error handling
+app.use(function (req, res, next) {
+  var err = new Error('Not Found');
+  err.status = 404;
+  res.status(404).json({ message: 'Not Found' });
+});
+
+app.use(function (err, req, res, next) {
+  res.status(err.status || 500);
+  res.json({
+    message: err.message,
+    error: err
+  });
+});
+
+app.get('/boom', (req, res, next) => {
+  throw new Error('Boom!!');
+});
+
 // Port to listen for 8080
-app.listen(PORT, function () {
+app.listen(8080, function () {
   console.info(`Server listening on ${this.address().port}`);
 }).on('error', err => {
   console.error(err);
