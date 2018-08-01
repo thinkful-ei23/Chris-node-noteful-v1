@@ -42,6 +42,7 @@ router.post('/', (req, res, next) => {
   }
 
   notes.create(newItem, (err, item) => {
+    console.log(newItem);
     if (err) {
       return next(err);
     }
