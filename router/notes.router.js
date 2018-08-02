@@ -9,24 +9,50 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
   const { searchTerm } = req.query;
-  notes.filter(searchTerm, (err, searchList) => {
-    if (err) {
-      return next(err);
-    }
-    res.json(searchList);
-  });
+
+  notes.filter(searchTerm)
+    .then(searchList => {
+      if (searchList) {
+        res.json(searchList);
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      next(err);
+    });
+
+  // notes.filter(searchTerm, (err, searchList) => {
+  //   if (err) {
+  //     return next(err);
+  //   }
+  //   res.json(searchList);
+  // });
 });
 
 router.get('/:id', (req, res, next) => {
   const { id } = req.params;
-  notes.find(id, function (err, item) {
-    if (err) {
-      return next(err);
-    }
-    if (item) {
-      res.json(item);
-    }
-  });
+
+  notes.find(id)
+    .then(item => {
+      if (item) {
+        res.json(item);
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      next(err);
+    });
+
+  // notes.find(id, function (err, item) {
+  //   if (err) {
+  //     return next(err);
+  //   }
+  //   if (item) {
+  //     res.json(item);
+  //   }
+  // });
 });
 
 // Post to endpoints
@@ -41,17 +67,30 @@ router.post('/', (req, res, next) => {
     return next(err);
   }
 
-  notes.create(newItem, (err, item) => {
-    console.log(newItem);
-    if (err) {
-      return next(err);
-    }
-    if (item) {
-      res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item);
-    } else {
-      next();
-    }
-  });
+  notes.create(newItem)
+    .then(item => {
+      if (item) {
+        res.json(item);
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      next(err);
+    });
+
+
+  // notes.create(newItem, (err, item) => {
+  //   console.log(newItem);
+  //   if (err) {
+  //     return next(err);
+  //   }
+  //   if (item) {
+  //     res.location(`http://${req.headers.host}/notes/${item.id}`).status(201).json(item);
+  //   } else {
+  //     next();
+  //   }
+  // });
 });
 
 // PUT endpoint
@@ -69,29 +108,52 @@ router.put('/:id', (req, res, next) => {
     }
   });
 
-  notes.update(id, updateObj, (err, item) => {
-    if (err) {
-      return next(err);
-    }
-    if (item) {
-      res.json(item);
-    } else {
-      next();
-    }
-  });
+
+  notes.update(id, updateObj)
+    .then(item => {
+      if (item) {
+        res.json(item);
+      } else {
+        next();
+      }
+    })
+    .catch(err => {
+      next(err);
+    });
+
+
+  // notes.update(id, updateObj, (err, item) => {
+  //   if (err) {
+  //     return next(err);
+  //   }
+  //   if (item) {
+  //     res.json(item);
+  //   } else {
+  //     next();
+  //   }
+  // });
 });
 
 // DELETE 
 router.delete('/:id', (req, res, next) => {
   const { id } = req.params;
-  notes.delete(id, function(err) {
-    if (err) {
-      return next(err);
-    } else {
-      res.status(204).end();
-    }
-    // res.json(item);
-  });
+
+  notes.delete(id)
+    .then(() => {
+      res.sendStatus(204);
+    })
+    .catch(err => {
+      next(err);
+    });
+
+  // notes.delete(id, function(err) {
+  //   if (err) {
+  //     return next(err);
+  //   } else {
+  //     res.status(204).end();
+  //   }
+  //   // res.json(item);
+  // });
 });
 
 module.exports = router;
