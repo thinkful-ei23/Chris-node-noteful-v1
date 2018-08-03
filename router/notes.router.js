@@ -9,7 +9,6 @@ const router = express.Router();
 
 router.get('/', (req, res, next) => {
   const { searchTerm } = req.query;
-
   notes.filter(searchTerm)
     .then(searchList => {
       if (searchList) {
@@ -41,9 +40,7 @@ router.get('/:id', (req, res, next) => {
         next();
       }
     })
-    .catch(err => {
-      next(err);
-    });
+    .catch(err => next(err));
 
   // notes.find(id, function (err, item) {
   //   if (err) {
