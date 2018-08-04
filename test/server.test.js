@@ -171,12 +171,14 @@ describe('PUT /api/notes/:id', function () {
 
 });
 
-
-
-// describe('POST new item to /api/notes', function () { });
-
-
-
-// describe('POST new item to /api/notes', function () { });
+describe('DELETE /api/notes/:id', function () {
+  it('should delete item by id', function () {
+    return chai.request(app)
+      .delete('/api/notes/1003')
+      .then(function (res) {
+        expect(res).to.have.status(204);
+      });
+  });
+});
 
 
