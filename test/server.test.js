@@ -65,26 +65,41 @@ describe('GET /api/notes', function() {
 
   });
 
-  // it('should return empty string for none existent word in title', function () {
-  //   const searchTerm = 'something that doesnt exist';
-  //   return chai.request(app)
-  //     .get(`/api/notes?searchTerm=${searchTerm}`)
-  //     .then(function (res) {
-  //     });
+  it('should return empty string for none existent word in title', function () {
+    const searchTerm = 'something that doesnt exist';
+    return chai.request(app)
+      .get(`/api/notes?searchTerm=${searchTerm}`)
+      .then(function (res) {
+        expect(res).to.have.status(200);
+        res.body.forEach(item => {
+          expect(item.title).to.be.a('');
+        });
+      });
 
-  // });
+  });
 
 });
 
-describe('GET /api/notes', function () {
+describe('GET /api/notes/:id', function () {
 
   it('should list an item on GET', function () {
     return chai.request(app)
       .get('/api/notes/1002')
       .then(function (res) {
         expect(res).to.have.status(200);
+        expect(res).to.exist;
+        expect(res).to.be.json;
         expect(res.body).to.be.a('object');
         expect(res.body).to.include.keys('id', 'title', 'content');
+      });
+  });
+
+  it('should respond with status 404 for invalid id', function () {
+    return chai.request(app)
+      .get('/api/notes/5569')
+      .then(function (res) {
+        expect(res).to.have.status(404);
+        expect(res).to.exist;
       });
   });
 
@@ -92,7 +107,7 @@ describe('GET /api/notes', function () {
 
 describe('POST new item to /api/notes', function(){
 
-  it('should add an item on POST', function () {
+  it('should create and return newItem on POST with location header', function () {
     const testItem = { title: 'New Title from server.test.js', content: 'My new content from server.test.js BLOW!' };
     return chai.request(app)
       .post('/api/notes')
@@ -106,12 +121,37 @@ describe('POST new item to /api/notes', function(){
       });
   });
 
+  it('should return an object with message propert when missing title field', function () {
+    const testItem = { title: '' ,content: 'My new content from server.test.js BLOW!' };
+    return chai.request(app)
+      .post('/api/notes')
+      .send(testItem)
+      .then(function (res) {
+        expect(res).to.have.status(400);
+        expect(res).to.be.json;
+        expect(res.body).to.be.a('object');
+        expect(res.body).to.include.keys('message', 'error');
+        expect(res.body.message).to.not.equal('Missing title in request body');
+      });
+  });
 
 });
 
 
 
-// describe('POST new item to /api/notes', function () { });
+describe('PUT /api/notes/:id', function () {
+  it('should update and return note object', function () {
+    const updateItem = { title: 'my new edited title', content: 'edited content'};
+    return chai.request(app)
+      .put('/api/notes/1005')
+      .send(updateItem)
+      .then(function (res) {
+        expect(res).to.have.status(200);
+        expect(res).to.be.json;
+        expect(res.body).to.be.a('object');
+      })
+  });
+});
 
 
 
