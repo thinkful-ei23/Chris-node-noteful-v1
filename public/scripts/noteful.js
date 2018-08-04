@@ -33,6 +33,15 @@ const noteful = (function () {
     return id;
   }
 
+  // DRY Search Solution
+  function doSearchAndRender() {
+    return api.search(store.currentSearchTerm)
+      .then(updateResponse => {
+        store.notes = updateResponse;
+        render();
+      });
+  }
+
   /**
    * EVENT LISTENERS AND HANDLERS
    */
@@ -43,15 +52,10 @@ const noteful = (function () {
       const noteId = getNoteIdFromElement(event.currentTarget);
 
       api.details(noteId)
-        .this(details => {
-          store.currentNote = details;
+        .then(detailsResponse => {
+          store.currentNote = detailsResponse;
           render();
         });
-
-      // api.details(noteId, detailsResponse => {
-      //   store.currentNote = detailsResponse;
-      //   render();
-      // });
 
     });
   }
@@ -63,16 +67,7 @@ const noteful = (function () {
       const searchTerm = $('.js-note-search-entry').val();
       store.currentSearchTerm = searchTerm ? { searchTerm } : {};
 
-      api.search(store.currentSearchTerm)
-        .then(response => {
-          store.notes = response;
-          render();
-        });
-
-      // api.search(store.currentSearchTerm, searchResponse => {
-      //   store.notes = searchResponse;
-      //   render();
-      // });
+      doSearchAndRender();
 
     });
   }
@@ -91,41 +86,23 @@ const noteful = (function () {
 
       if (noteObj.id) {
 
+        // Promisified Solution
         api.update(store.currentNote.id, noteObj)
-          .then(updateRes => {
-            store.currentNote = updateRes;
-            return api.search(store.currentSearchTerm);
+          .then(updateResponse => {
+            store.currentNote = updateResponse;
           })
-          .then(searchRes => {
-            store.notes = searchRes;
-            render();
-          });
-          
+          .then(doSearchAndRender);
 
-        // api.update(store.currentNote.id, noteObj, updateResponse => {
-        //   store.currentNote = updateResponse;
-
-        //    api.search(store.currentSearchTerm, searchResponse => {
-        //     store.notes = searchResponse;
-        //     render();
-        //   });
       } else {
 
+        // Promisified Solution
         api.create(noteObj)
-          .then(createRes => {
-            store.currentNote = createRes;
-          });
-
-        // api.create(noteObj, createResponse => {
-        //   store.currentNote = createResponse;
-
-        //   api.search(store.currentSearchTerm, searchResponse => {
-        //     store.notes = searchResponse;
-        //     render();
-        //   });
-
-        // });
+          .then(createResponse => {
+            store.currentNote = createResponse;
+          })
+          .then(doSearchAndRender);
       }
+
     });
   }
 
@@ -133,7 +110,6 @@ const noteful = (function () {
     $('.js-start-new-note-form').on('submit', event => {
       event.preventDefault();
 
-      // added code for client to work with server
       store.currentNote = {};
       render();
 
@@ -146,25 +122,13 @@ const noteful = (function () {
 
       const noteId = getNoteIdFromElement(event.currentTarget);
 
-
       api.remove(noteId)
-        .then(() => api.search(store.currentSearchTerm))
-        .then(searchResponse => {
-          store.notes = searchResponse;
+        .then(() => {
           if (noteId === store.currentNote.id) {
             store.currentNote = {};
           }
-          render();
-        });
-      // api.remove(noteId, () => {
-      //   api.search(store.currentSearchTerm, searchResponse => {
-      //     store.notes = searchResponse;
-      //     if (noteId === store.currentNote.id) {
-      //       store.currentNote = {};
-      //     }
-      //     render();
-      //   });
-      // });
+        })
+        .then(doSearchAndRender);
     });
   }
 
@@ -180,7 +144,7 @@ const noteful = (function () {
   // This object contains the only exposed methods from this module:
   return {
     render: render,
-    bindEventListeners: bindEventListeners
+    bindEventListeners: bindEventListeners,
   };
 
 }());
