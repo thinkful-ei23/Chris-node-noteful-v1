@@ -67,7 +67,9 @@ router.post('/', (req, res, next) => {
   notes.create(newItem)
     .then(item => {
       if (item) {
-        res.json(item);
+        // res.json(item);
+        res.status(201).json(item);
+
       } else {
         next();
       }
