@@ -35,7 +35,6 @@ app.use(function (err, req, res, next) {
   });
 });
 
-
 // Port to listen for 8080
 if (require.main === module) {
   app.listen(PORT, function () {
